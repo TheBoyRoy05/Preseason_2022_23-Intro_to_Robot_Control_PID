@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -14,22 +15,42 @@ import frc.robot.Constants;
 public class DriveTrain extends SubsystemBase {
 
   private final WPI_TalonSRX _leftDriveTalon;
-  private final WPI_TalonSRX _righttDriveTalon;
+  private final WPI_TalonSRX _rightDriveTalon;
 
   private DifferentialDrive _diffDrive;
 
 
   /** Creates a new DriveTrain. */
   public DriveTrain() {
+    //Create Talon Objects
     _leftDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.LeftDriveTalonPort);
-    _righttDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.RightDriveTalonPort);
+    _rightDriveTalon = new WPI_TalonSRX(Constants.DriveTrainPorts.RightDriveTalonPort);
 
+    _leftDriveTalon.configFactoryDefault();
     _leftDriveTalon.setInverted(false);
-    _righttDriveTalon.setInverted(false);
+    _leftDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
 
-    _diffDrive = new DifferentialDrive(_leftDriveTalon, _righttDriveTalon);
+    _rightDriveTalon.configFactoryDefault();
+    _rightDriveTalon.setInverted(false);
+    _rightDriveTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
 
+    _diffDrive = new DifferentialDrive(_leftDriveTalon, _rightDriveTalon);
+  }
 
+  //There are 4096 "ticks" per rotation
+  //This will give number of rotations
+  public double getLeftPos(){ 
+    return _leftDriveTalon.getSelectedSensorPosition() / 4096.0;
+  }
+  public void setLeftPos(double pos){
+    _leftDriveTalon.setSelectedSensorPosition(pos);
+  }
+
+  public double getRightPos(){ 
+    return _rightDriveTalon.getSelectedSensorPosition() / 4096.0;
+  }
+  public void setRightPos(double pos){
+    _rightDriveTalon.setSelectedSensorPosition(pos);
   }
 
   @Override
@@ -39,7 +60,5 @@ public class DriveTrain extends SubsystemBase {
 
   public void tankDrive(double leftSpeed, double rightSpeed) {
     _diffDrive.tankDrive(leftSpeed, rightSpeed);
-
-
   }
 }

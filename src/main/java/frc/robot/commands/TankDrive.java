@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
@@ -14,26 +15,31 @@ public class TankDrive extends CommandBase {
   private final DriveTrain _driveTrain;
   private final Joystick _leftJoystick;
   private final Joystick _rightJoystick;
+  private PIDController pid;
+  private int pos;
   
   /** Creates a new TankDrive. */
-  public TankDrive(DriveTrain dt, Joystick lj, Joystick rj) {
+  public TankDrive(DriveTrain dt, int pos) {
     // Use addRequirements() here to declare subsystem dependencies.
     _driveTrain = dt;
     _leftJoystick = lj;
     _rightJoystick = rj;
+    pid = new PIDController(Constants.PIDConsts.kP, Constants.PIDConsts.kI, Constants.PIDConsts.kD);
+    this.pos = pos;
 
     addRequirements(_driveTrain);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    pid.setSetpoint(pos);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    _driveTrain.tankDrive(-0.8 * _leftJoystick.getRawAxis(Constants.JoystickAxis.YAxis),
-                          -0.8 * _rightJoystick.getRawAxis(Constants.JoystickAxis.YAxis));
+    _driveTrain.tankDrive(pid.calculate(_driveTrain.getLeftPos()), pid.calculate(_driveTrain.getRightPos()));
   }
 
   // Called once the command ends or is interrupted.

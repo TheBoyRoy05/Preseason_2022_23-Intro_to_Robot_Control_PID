@@ -14,6 +14,12 @@ package frc.robot;
  */
 public final class Constants {
 
+    public static final class PIDConsts{
+        public static final double kP = 0;
+        public static final double kI = 0;
+        public static final double kD = 0;
+    }
+
     public static final class DriveTrainPorts {
         public static final int LeftDriveTalonPort = 1;
         public static final int RightDriveTalonPort = 2;
